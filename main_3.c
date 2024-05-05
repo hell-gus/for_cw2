@@ -296,33 +296,6 @@ void drawingHexagon(hexagon data, BMPFile* img) {
     }      
 }
 
-rgb** cut_image(rgb **arr, BitmapInfoHeader* bmif, coords left_top, coords right_bottom){
- // выделяем место под обрезанную картинку
-    int size;
-    size=left_top.x-right_bottom.x;
-
-    rgb ** new_arr = malloc(size * sizeof(rgb *));
-    for (int i = 0; i < size; i++){
-        new_arr[i] = malloc(size * sizeof(rgb));
-    }
-    // выбираем определенную часть из исходного изображения
-    for (int i = 0; i < size; i++){
-        for (int j = 0; j < size; j++){
-            if (i >= 0 && j >= 0 && j < bmif->width && bmif->height - left_top.y - i >= 0 && bmif->height - left_top.y - i < bmif->height && left_top.x + j >= 0 && left_top.x + j < bmif->width){
-                new_arr[size - i - 1][j] = arr[bmif->height - left_top.y - i][left_top.x + j];
-            }
-        }
-    }
-    // удаляем старую картинку
-    for(int i = 0; i < bmif->height; i++){
-        free(arr[i]);
-    }
-    free(arr);
-    // меняем размер картинки в информационном заголовке
-    bmif->height = size;
-    bmif->width = size;
-    return new_arr;
-} 
 int main()
 {
     BMPFile* img = readBMPFile("Airplane.bmp");
@@ -363,7 +336,7 @@ int main()
     t1.y = 100;
     t2.x = 200;
     t2.y = 200;
-    //cut_image(img->data, img->bmih, t1, t2);
+    
         
     writeBMPFile("fill.bmp", img);
 }
