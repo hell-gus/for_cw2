@@ -1,6 +1,6 @@
 //рисование линий и вспомогательные функции для заливки от данилы пачева
 //напрягают закругленные края у прямоугольника и шестиугольника
-//и код надо чутка переделать чтобы не повторять данилин точь в точь
+//написано 2/3 фукнций
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -277,14 +277,17 @@ void fill_zone(int i, int j, rgb color, rgb fill_color, BMPFile* img) {//img->da
     fill_zone(i, j + 1, color, fill_color, img);
     fill_zone(i, j - 1, color, fill_color, img);
 }
-
+int isInsideArea(coords polygonPoints[], int nAngle, coords point) {
+    int i, j, c = 0;
+    for (i = 0, j = nAngle - 1; i < nAngle; j = i++) {
+        if (((polygonPoints[i].y > point.y) != (polygonPoints[j].y > point.y)) &&
+            (point.x < (polygonPoints[j].x - polygonPoints[i].x) * (point.y - polygonPoints[i].y) / (polygonPoints[j].y - polygonPoints[i].y) + polygonPoints[i].x))
+            c = !c;
+    }
+    return c;
+}
 
 void drawingRectangle(rectangle data, BMPFile* img) {
-    /*if (data.start.x + data.length < 0 || data.start.y + data.length < 0 || data.start.x > img->bmih.width || data.start.y > img->bmih.height) {
-        wprintf(L"mypaint: некорректные координаты левого верхнего угла квадрата.\nПо команде «--help» можно получить дополнительную информацию.\n");
-        return;
-    }img*/
-
     coords left_top = data.start;
     coords right_top = {data.start.x, data.end.y};
     coords left_bottom = {data.end.x, data.start.y};
@@ -296,25 +299,13 @@ void drawingRectangle(rectangle data, BMPFile* img) {
     drawingLine(left_bottom, right_bottom, data.color, data.thickness, img);
 
     if (data.filled == 1) {
-    rgb fill_colors;
-    fill_colors.red = data.fill_color.red;
-    fill_colors.green = data.fill_color.green;
-    fill_colors.blue = data.fill_color.blue;
-    for (int y = data.start.y; y < data.end.y + 1; y++) {
-        for (int x = data.start.x; x < data.end.x + 1; x++) {
-            draw_pixel(img, x, y, fill_colors);
+        for (int y = data.start.y; y < data.end.y + 1; y++) {
+            for (int x = data.start.x; x < data.end.x + 1; x++) {
+                draw_pixel(img, x, y, data.fill_color);
+                
+            }
         }
     }
-}
-}
-int is_inside_hexagon(coords polygon[], int n, coords p) {
-    int i, j, c = 0;
-    for (i = 0, j = n - 1; i < n; j = i++) {
-        if (((polygon[i].y > p.y) != (polygon[j].y > p.y)) &&
-            (p.x < (polygon[j].x - polygon[i].x) * (p.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x))
-            c = !c;
-    }
-    return c;
 }
 
 void drawingHexagon(hexagon data, BMPFile* img) {
@@ -324,6 +315,7 @@ void drawingHexagon(hexagon data, BMPFile* img) {
     coords l4 = {data.centre.x + (data.radius / 2), data.centre.y - data.radius * sqrt(3.0) / 2};
     coords l5 = {data.centre.x - (data.radius / 2), data.centre.y - data.radius * sqrt(3.0) / 2};
     coords l6 = {data.centre.x - data.radius, data.centre.y};
+    coords poligon[6]={l1, l2, l3, l4, l5, l6}; 
 
     drawingLine(l1, l2, data.color, data.thickness, img);
     drawingLine(l2, l3, data.color, data.thickness, img);
@@ -331,18 +323,13 @@ void drawingHexagon(hexagon data, BMPFile* img) {
     drawingLine(l4, l5, data.color, data.thickness, img);
     drawingLine(l5, l6, data.color, data.thickness, img);
     drawingLine(l6, l1, data.color, data.thickness, img);
-    coords poligon[6]={l1, l2, l3, l4, l5, l6};
-
+    
     if (data.filled == 1) {
-        rgb fill_colors;
-        fill_colors.red = data.fill_color.red;
-        fill_colors.green = data.fill_color.green;
-        fill_colors.blue = data.fill_color.blue;
         for (int y = l5.y; y < l2.y + 1; y++) {
             for (int x = l6.x; x < l3.x + 1; x++) {
                 coords point = {x, y};
-                if (is_inside_hexagon(poligon, 6,point)) {
-                    draw_pixel(img, x, y, fill_colors);
+                if (isInsideArea(poligon, 6, point)) {
+                    draw_pixel(img, x, y, data.fill_color);
                 }
             }
         }
