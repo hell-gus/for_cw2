@@ -1,0 +1,43 @@
+void copy_and_paste_area(BMPFile* img, coords start, coords end, coords past_in_area) {
+    int width = end.x - start.x;
+    int height = end.y - start.y;
+
+    // Создаем временный буфер для хранения скопированной области
+    rgb** temp_buffer = (rgb**)malloc(sizeof(rgb*) * height);
+    if (!temp_buffer) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+    for (int i = 0; i < height; i++) {
+        temp_buffer[i] = (rgb*)malloc(sizeof(rgb) * width);
+        if (!temp_buffer[i]) {
+            printf("Memory allocation failed.\n");
+            // Освобождаем ранее выделенную память
+            for (int j = 0; j < i; j++) {
+                free(temp_buffer[j]);
+            }
+            free(temp_buffer);
+            return;
+        }
+    }
+
+    // Копируем область изображения во временный буфер
+    for (int y = start.y; y < end.y; y++) {
+        for (int x = start.x; x < end.x; x++) {
+            temp_buffer[y - start.y][x - start.x] = img->data[y][x];
+        }
+    }
+
+    // Вставляем скопированную область в указанное место в изображении
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            img->data[past_in_area.y + y][past_in_area.x + x] = temp_buffer[y][x];
+        }
+    }
+
+    // Освобождаем временный буфер
+    for (int i = 0; i < height; i++) {
+        free(temp_buffer[i]);
+    }
+    free(temp_buffer);
+}
