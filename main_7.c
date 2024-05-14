@@ -316,7 +316,16 @@ void drawingHexagon(hexagon data, BMPFile* img) {
     coords l5 = {data.centre.x - (data.radius / 2), data.centre.y - data.radius * sqrt(3.0) / 2};
     coords l6 = {data.centre.x - data.radius, data.centre.y};
     coords poligon[6]={l1, l2, l3, l4, l5, l6}; 
-
+    if (data.filled == 1) {
+        for (int y = l5.y; y < l1.y ; y++) {
+            for (int x = l6.x; x < l3.x+1 ; x++) {
+                coords point = {x, y};
+                if (isInsideArea(poligon, 6, point)) {
+                        draw_pixel(img, x, y, data.fill_color);
+                }
+            }
+        }
+    }
     drawingLine(l1, l2, data.color, data.thickness, img);
     drawingLine(l2, l3, data.color, data.thickness, img);
     drawingLine(l3, l4, data.color, data.thickness, img);
@@ -324,16 +333,7 @@ void drawingHexagon(hexagon data, BMPFile* img) {
     drawingLine(l5, l6, data.color, data.thickness, img);
     drawingLine(l6, l1, data.color, data.thickness, img);
     
-    if (data.filled == 1) {
-        for (int y = l5.y; y < l2.y + 1; y++) {
-            for (int x = l6.x; x < l3.x + 1; x++) {
-                coords point = {x, y};
-                if (isInsideArea(poligon, 6, point)) {
-                    draw_pixel(img, x, y, data.fill_color);
-                }
-            }
-        }
-    }
+    
 }
 void copy_and_paste_area(BMPFile* img, coords start, coords end, coords dest_start) {
     int width = end.x - start.x;
