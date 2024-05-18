@@ -1,3 +1,15 @@
+//добавить флаг
+//добавить в гетопт
+//добаввить в свич
+//добавить в мэйн это:
+/*
+if(flags.frame){
+        frm.color = color;
+        frm.thickness = thickness;
+        drawFrame(img, frm.color, frm.thickness);
+    }
+*/
+
 void drawFrame(BMPFile* img, rgb color, int thickness){
     img->bmih.height += thickness*2;
     img->bmih.width += thickness*2;
