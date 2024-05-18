@@ -1,4 +1,11 @@
 //добавить флаг(структуру)
+/*
+typedef struct frame{
+    BMPFile* img;
+    rgb color;
+    int thickness;
+}frame;
+*/
 //добавить в гетопт
 //добавить реализацию
 //добаввить в свич
